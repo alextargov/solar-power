@@ -10,6 +10,11 @@
     <div class="scene">
       <img class="panel" src="../assets/scene.png">
     </div>
+    <div class="notifications">
+      <h5 v-if="this.notification.isTrue">{{ notification.message }} </h5>
+      <h5 v-if="this.notification2.isTrue">{{ notification2.message }} </h5>
+      <h5 v-if="!this.notification2.isTrue && !this.notification.isTrue">No clouds!</h5>
+    </div>
   </div>
 
 </template>
@@ -22,6 +27,18 @@
       this.triggerCloud();
       this.compareCoordinates();
     },
+    data() {
+      return {
+        notification: {
+          isTrue: false,
+          message: 'Cloud incoming!'
+        },
+        notification2: {
+          isTrue: false,
+          message: 'Cloud going away!'
+        }
+      }
+    },
     methods: {
       triggerCloud() {
         let self = this;
@@ -29,19 +46,24 @@
         let interval = setInterval(function () {
           let rand = Math.random();
           /* Triggers the cloud only if  (rand >= 0.8)*/
-console.log('rand' + rand);
+
           if (rand >= 0.95) {
             clearInterval(interval);
+            self.notification.isTrue = true;
             let el = document.getElementById("cloud");
             let pos = -25;
             let id = setInterval(frame, 5);
-
             function frame() {
               if (pos >= 100) {
                 clearInterval(id);
+                self.notification2.isTrue = false;
                 self.triggerCloud();
               } else {
                 pos += 0.01;
+                if(pos > 50) {
+                  self.notification.isTrue = false;
+                  self.notification2.isTrue = true;
+                }
                 el.style.left = pos + '%';
               }
             }
@@ -140,7 +162,12 @@ console.log('rand' + rand);
 
           //accelerate the time
           date.setMinutes(date.getMinutes() + 10);
-          document.getElementById("times").innerHTML = "Time " + date.getHours() + ":" + date.getMinutes();
+          if(date.getMinutes() === 0) {
+            document.getElementById("times").innerHTML = "Time " + date.getHours() + ":" + date.getMinutes() +'0' ;
+          } else {
+            document.getElementById("times").innerHTML = "Time " + date.getHours() + ":" + date.getMinutes() ;
+          }
+
         },1000);
       }
     }
@@ -153,6 +180,9 @@ console.log('rand' + rand);
   }
   .scene {
     margin-top: 10px;
+  }
+  .notifications {
+    height: 40px;
   }
   #cloud {
     width: 30%;
